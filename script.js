@@ -67,7 +67,7 @@ function startQuiz(user) {
 
 function renderQuestion() {
     const qData = questions[appState.currentQuestionIndex];
-    document.getElementById('current-user-tag').innerText = `Answering as: ${appState.currentUser === 'User 1' ? 'Partner 1' : 'Partner 2'}`;
+    document.getElementById('current-user-tag').innerText = `Answering as: ${appState.currentUser === 'User 1' ? 'Ahidi' : 'Khadijah'}`;
     document.getElementById('question-text').innerText = `${appState.currentQuestionIndex + 1}. ${qData.q}`;
     
     const optionsDiv = document.getElementById('options-container');
