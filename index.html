@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Connection Quiz</title>
+    <title>Our Connection Quiz ✨</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://googleapis.com" rel="stylesheet">
 </head>
@@ -12,13 +12,22 @@
         <!-- Landing Page Container -->
         <div id="landing-page" class="card active">
             <h1 class="title">Our Connection Space ✨</h1>
-            <p class="subtitle">A private quiz to understand each other deeply. Responses stay completely hidden until both of you have finished answering.</p>
+            <p class="subtitle">A long-distance quiz to understand each other deeply. Your responses stay completely hidden until both links are merged.</p>
             
             <div class="user-selector">
-                <p class="selection-label">Who is answering right now?</p>
+                <p class="selection-label">Who is answering on this device?</p>
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="startQuiz('User 1')">Partner 1</button>
                     <button class="btn btn-secondary" onclick="startQuiz('User 2')">Partner 2</button>
+                </div>
+            </div>
+            
+            <!-- Dynamic Share Link Section -->
+            <div id="share-section" class="share-box" style="display:none;">
+                <p class="share-label">📬 Progress Saved! Send this link to your partner:</p>
+                <div class="share-input-group">
+                    <input type="text" id="share-url-input" readonly>
+                    <button id="copy-btn" class="btn btn-primary" onclick="copyLink()">Copy Connection Link 📋</button>
                 </div>
             </div>
             
@@ -26,11 +35,11 @@
                 <h3>Current Status</h3>
                 <div class="status-row">
                     <span>Partner 1:</span>
-                    <span id="status-u1" class="badge badge-pending">Not Started</span>
+                    <span id="status-u1" class="badge badge-pending">Waiting...</span>
                 </div>
                 <div class="status-row">
                     <span>Partner 2:</span>
-                    <span id="status-u2" class="badge badge-pending">Not Started</span>
+                    <span id="status-u2" class="badge badge-pending">Waiting...</span>
                 </div>
                 <button id="reveal-btn" class="btn btn-success btn-block" disabled onclick="revealResults()">Reveal Shared Answers 🔓</button>
             </div>
@@ -40,7 +49,7 @@
         <div id="quiz-page" class="card">
             <div class="quiz-header">
                 <button class="btn-back" onclick="showLanding()">&larr; Back</button>
-                <span id="current-user-tag" class="user-tag">Answering as...</span>
+                <span id="current-user-tag" class="user-tag">Answering...</span>
             </div>
             <div id="question-container">
                 <h2 id="question-text" class="question">Question text goes here?</h2>
@@ -57,7 +66,7 @@
             <h1 class="title">Our Revealed Connections 💖</h1>
             <p class="subtitle">Take your time reading through each other's inner thoughts, perspectives, and preferences.</p>
             <div id="results-container"></div>
-            <button class="btn btn-secondary btn-block" onclick="resetQuiz()">Reset & Retake Quiz</button>
+            <button class="btn btn-secondary btn-block" onclick="resetQuiz()">Reset & Restart Quiz</button>
         </div>
     </div>
     <script src="script.js"></script>
