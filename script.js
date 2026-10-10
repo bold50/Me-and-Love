@@ -142,10 +142,10 @@ function revealResults() {
         block.innerHTML = `
             <div class="result-q">${index + 1}. ${qData.q}</div>
             <div class="answer-row ${isMatch ? 'match' : 'differ'}">
-                <strong>Partner 1:</strong> ${ans1}
+                <strong>Ahidi:</strong> ${ans1}
             </div>
             <div class="answer-row ${isMatch ? 'match' : 'differ'}">
-                <strong>Partner 2:</strong> ${ans2}
+                <strong>Khadijah:</strong> ${ans2}
             </div>
         `;
         container.appendChild(block);
