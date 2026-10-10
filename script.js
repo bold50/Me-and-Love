@@ -18,26 +18,41 @@ const questions = [
 let appState = {
     currentUser: null,
     currentQuestionIndex: 0,
-    answers: { 'User 1': {}, 'User 2': {} }
+    answers: { 'User 1': null, 'User 2': null }
 };
 
-// Load existing session data from LocalStorage if available
-if(localStorage.getItem('connection_quiz_state')) {
-    appState = JSON.parse(localStorage.getItem('connection_quiz_state'));
+function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const p1Data = urlParams.get('p1');
+    const p2Data = urlParams.get('p2');
+
+    if (p1Data) {
+        try { appState.answers['User 1'] = JSON.parse(atob(p1Data)); } catch(e) { console.error("Error reading Partner 1 data:", e); }
+    }
+    if (p2Data) {
+        try { appState.answers['User 2'] = JSON.parse(atob(p2Data)); } catch(e) { console.error("Error reading Partner 2 data:", e); }
+    }
 }
 
 function updateLandingStatus() {
-    const u1Done = Object.keys(appState.answers['User 1']).length === questions.length;
-    const u2Done = Object.keys(appState.answers['User 2']).length === questions.length;
+    const u1Done = appState.answers['User 1'] && Object.keys(appState.answers['User 1']).length === questions.length;
+    const u2Done = appState.answers['User 2'] && Object.keys(appState.answers['User 2']).length === questions.length;
 
     const s1 = document.getElementById('status-u1');
     const s2 = document.getElementById('status-u2');
     
     s1.className = u1Done ? 'badge badge-complete' : 'badge badge-pending';
-    s1.innerText = u1Done ? 'Completed & Locked' : 'Not Finished';
+    s1.innerText = u1Done ? 'Answers Loaded 🔒' : 'Waiting...';
 
     s2.className = u2Done ? 'badge badge-complete' : 'badge badge-pending';
-    s2.innerText = u2Done ? 'Completed & Locked' : 'Not Finished';
+    s2.innerText = u2Done ? 'Answers Loaded 🔒' : 'Waiting...';
+
+    const shareSection = document.getElementById('share-section');
+    if ((u1Done && !u2Done) || (!u1Done && u2Done)) {
+        shareSection.style.display = 'block';
+    } else {
+        shareSection.style.display = 'none';
+    }
 
     document.getElementById('reveal-btn').disabled = !(u1Done && u2Done);
 }
@@ -45,23 +60,24 @@ function updateLandingStatus() {
 function startQuiz(user) {
     appState.currentUser = user;
     appState.currentQuestionIndex = 0;
+    if (!appState.answers[user]) appState.answers[user] = {};
     switchPage('quiz-page');
     renderQuestion();
 }
 
 function renderQuestion() {
     const qData = questions[appState.currentQuestionIndex];
-    document.getElementById('current-user-tag').innerText = `Answering as: ${appState.currentUser}`;
+    document.getElementById('current-user-tag').innerText = `Answering as: ${appState.currentUser === 'User 1' ? 'Partner 1' : 'Partner 2'}`;
     document.getElementById('question-text').innerText = `${appState.currentQuestionIndex + 1}. ${qData.q}`;
     
     const optionsDiv = document.getElementById('options-container');
     optionsDiv.innerHTML = '';
     
-    qData.o.forEach(option => {
+    qData.o.forEach((option, idx) => {
         const btn = document.createElement('button');
         btn.className = 'option-card';
         btn.innerText = option;
-        btn.onclick = () => handleAnswer(option);
+        btn.onclick = () => handleAnswer(idx);
         optionsDiv.appendChild(btn);
     });
 
@@ -69,18 +85,43 @@ function renderQuestion() {
     document.getElementById('progress-fill').style.width = `${((appState.currentQuestionIndex + 1) / questions.length) * 100}%`;
 }
 
-function handleAnswer(selectedOption) {
-    appState.answers[appState.currentUser][appState.currentQuestionIndex] = selectedOption;
-    localStorage.setItem('connection_quiz_state', JSON.stringify(appState));
+function handleAnswer(selectedIndex) {
+    appState.answers[appState.currentUser][appState.currentQuestionIndex] = selectedIndex;
 
     if (appState.currentQuestionIndex < questions.length - 1) {
         appState.currentQuestionIndex++;
         renderQuestion();
     } else {
-        alert("You've finished your portion! Hand the device over or let your partner log in to finish theirs.");
         switchPage('landing-page');
         updateLandingStatus();
+        generateShareLink();
     }
+}
+
+function generateShareLink() {
+    const baseUrl = window.location.origin + window.location.pathname;
+    let params = new URLSearchParams();
+
+    if (appState.answers['User 1']) {
+        params.set('p1', btoa(JSON.stringify(appState.answers['User 1'])));
+    }
+    if (appState.answers['User 2']) {
+        params.set('p2', btoa(JSON.stringify(appState.answers['User 2'])));
+    }
+
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+    document.getElementById('share-url-input').value = shareUrl;
+}
+
+function copyLink() {
+    const copyText = document.getElementById('share-url-input');
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+    
+    const copyBtn = document.getElementById('copy-btn');
+    copyBtn.innerText = "Copied! 🎉";
+    setTimeout(() => { copyBtn.innerText = "Copy Connection Link 📋"; }, 2000);
 }
 
 function revealResults() {
@@ -89,9 +130,12 @@ function revealResults() {
     container.innerHTML = '';
 
     questions.forEach((qData, index) => {
-        const ans1 = appState.answers['User 1'][index];
-        const ans2 = appState.answers['User 2'][index];
-        const isMatch = ans1 === ans2;
+        const idx1 = appState.answers['User 1'][index];
+        const idx2 = appState.answers['User 2'][index];
+        
+        const ans1 = qData.o[idx1];
+        const ans2 = qData.o[idx2];
+        const isMatch = idx1 === idx2;
 
         const block = document.createElement('div');
         block.className = 'result-block';
@@ -116,15 +160,12 @@ function switchPage(pageId) {
 function showLanding() { switchPage('landing-page'); updateLandingStatus(); }
 
 function resetQuiz() {
-    if(confirm("Are you sure you want to clear responses and restart?")) {
-        appState.answers = { 'User 1': {}, 'User 2': {} };
-        localStorage.removeItem('connection_quiz_state');
-        switchPage('landing-page');
-        updateLandingStatus();
+    if(confirm("Are you sure you want to completely restart?")) {
+        window.location.href = window.location.origin + window.location.pathname;
     }
 }
 
-// Initial setup
 document.addEventListener("DOMContentLoaded", () => {
+    checkUrlParams();
     updateLandingStatus();
 });
