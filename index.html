@@ -169,14 +169,12 @@
         let partnerAnswers = [];
         let isPartnerMode = false;
 
-        // Run checking setup instantly as file reads
         const urlParams = new URLSearchParams(window.location.search);
         const partnerData = urlParams.get('p');
         if (partnerData) {
             try {
                 partnerAnswers = JSON.parse(atob(partnerData));
                 isPartnerMode = true;
-                // Defer changing text elements until window finishes loading safely
                 window.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('welcome-title').innerText = "Your Partner Has Challenged You! 💕";
                     document.getElementById('welcome-desc').innerText = "Your partner has completed the quiz! Answer the questions yourself to instantly unlock both of your results side-by-side.";
@@ -228,9 +226,9 @@
                 document.getElementById('reveal-screen').classList.remove('hidden');
                 renderComparison();
             } else {
+                document.getElementById('share-screen').classList.remove('hidden');
+                const encryptedAnswers = btoa(JSON.stringify(myAnswers));
 
-document.getElementById('share-screen').classList.remove('hidden');
-const encryptedAnswers = btoa(JSON.stringify(myAnswers));
 const shareLink = window.location.href.split('?')[0] + '?p=' + encryptedAnswers;
 document.getElementById('share-url').value = shareLink;
 }
@@ -255,3 +253,14 @@ copyText.setSelectionRange(0, 99999);
 navigator.clipboard.writeText(copyText.value);
 alert("Magic Link Copied! Send it to your girlfriend now. 💕");
 }
+
+
+
+<FollowUp>
+Once you copy and paste this into GitHub, **clear your browser cache** or force refresh (`Ctrl + F5` on Windows or `Cmd + Shift + R` on Mac). 
+
+Let me know:
+* Does clicking the **"Start Quiz"** button load your questions successfully now?
+</FollowUp>
+
+
