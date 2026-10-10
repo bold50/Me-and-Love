@@ -106,6 +106,36 @@ body {
 
 .btn-block { width: 100%; margin-top: 15px; }
 
+.share-box {
+    background: #fff0f3;
+    border: 2px dashed var(--primary);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.share-label {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.share-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.share-input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
 .status-board {
     background: #fff;
     padding: 20px;
@@ -137,7 +167,6 @@ body {
 .badge-pending { background: #ffeaa7; color: #d63031; }
 .badge-complete { background: #e3fafc; color: #0c8599; }
 
-/* Quiz layout */
 .quiz-header {
     display: flex;
     justify-content: space-between;
@@ -213,7 +242,6 @@ body {
     transition: width 0.3s ease;
 }
 
-/* Results view */
 .result-block {
     background: white;
     border-radius: 16px;
